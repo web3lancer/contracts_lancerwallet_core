@@ -30,16 +30,10 @@ module.exports = {
       accounts: [process.env.PRIVATEKEY],
       chainId: 1114,
     },
-    core_testnet1: {
-      url: "https://rpc.test.btcs.network",
-      accounts: [process.env.PRIVATEKEY],
-      chainId: 1115,
-    },
   },
   etherscan: {
     apiKey: {
       core_testnet2: process.env.CORE_TEST2_SCAN_KEY,
-      core_testnet1: process.env.CORE_TEST1_SCAN_KEY,
       core_mainnet: process.env.CORE_MAIN_SCAN_KEY,
     },
     customChains: [
@@ -49,14 +43,6 @@ module.exports = {
         urls: {
           apiURL: "https://api.test2.btcs.network/api",
           browserURL: "https://scan.test2.btcs.network/",
-        },
-      },
-      {
-        network: "core_testnet1",
-        chainId: 1115,
-        urls: {
-          apiURL: "https://api.test.btcs.network/api",
-          browserURL: "https://scan.test.btcs.network/",
         },
       },
       {
