@@ -100,10 +100,10 @@ networks: {
     accounts: [process.env.PRIVATEKEY],
     chainId: 1116,
   },
-  core_testnet1: {
-    url: "https://rpc.test.btcs.network",
+  core_testnet2: {
+    url: "https://rpc.test2.btcs.network",
     accounts: [process.env.PRIVATEKEY],
-    chainId: 1115,
+    chainId: 1114,
   },
 }
 ```
