@@ -1,12 +1,12 @@
 # 🚀 Core - Hardhat Starter Kit
 
-This project demonstrates how to compile, deploy, and interact with smart contracts on the Core using [Hardhat](https://hardhat.org/). It supports multiple Core networks including **Core Mainnet**, **Core Testnet1**, and **Core Testnet2**.
+This project demonstrates how to compile, deploy, and interact with smart contracts on the Core using [Hardhat](https://hardhat.org/). It supports both **Core Mainnet**, and **Core Testnet**.
 
 > ✅ Recommended for developers building and testing smart contracts on Core.
 
 ## 📌 Features
 
-- Multi-network support (Core Mainnet, Testnet1, Testnet2)
+- Multi-network support (Core Mainnet, Testnet2)
 - Configurable Solidity compiler versions and EVM settings
 - Integration with block explorers for contract verification
 - Optimized for performance with Hardhat’s toolbox
@@ -37,7 +37,6 @@ Create a `.env` file in the project root and add the following variables:
 ```env
 PRIVATEKEY="your_core_wallet_private_key"
 CORE_MAIN_SCAN_KEY="your_mainnet_explorer_api_key"
-CORE_TEST1_SCAN_KEY="your_testnet1_explorer_api_key"
 CORE_TEST2_SCAN_KEY="your_testnet2_explorer_api_key"
 ```
 
@@ -70,7 +69,6 @@ npx hardhat run scripts/deploy.js --network <network_name>
 Replace `<network_name>` with one of:
 
 - `core_mainnet`
-- `core_testnet1`
 - `core_testnet2`
 
 Example:
@@ -85,14 +83,9 @@ npx hardhat run scripts/deploy.js --network core_testnet2
 
 The project is configured to support multiple Core environments:
 
-- **Testnet1:**
-  - Solidity version: `0.8.19`
-  - EVM version: `Paris`
 - **Testnet2 & Mainnet:**
   - Solidity version: `0.8.24`
   - EVM version: `Shanghai`
-
-If you're working specifically with Testnet1, adjust the compiler version and EVM settings in `hardhat.config.js` as shown in comments.
 
 ---
 
@@ -111,11 +104,6 @@ networks: {
     url: "https://rpc.test2.btcs.network",
     accounts: [process.env.PRIVATEKEY],
     chainId: 1114,
-  },
-  core_testnet1: {
-    url: "https://rpc.test.btcs.network",
-    accounts: [process.env.PRIVATEKEY],
-    chainId: 1115,
   },
 }
 ```
