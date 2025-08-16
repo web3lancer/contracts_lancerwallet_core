@@ -1,147 +1,81 @@
-# 🚀 Core - Hardhat Starter Kit
+# LancerWallet Smart Contracts
 
-This project demonstrates how to compile, deploy, and interact with smart contracts on the Core using [Hardhat](https://hardhat.org/). It supports both **Core Mainnet**, and **Core Testnet**.
+Smart contracts for the LancerWallet multi-chain crypto wallet platform.
 
-> ✅ Recommended for developers building and testing smart contracts on Core.
+## Contracts
 
-## 📌 Features
+### Wallet.sol
+A minimal multisig-style smart contract wallet with the following features:
+- Multiple owners with configurable threshold signatures
+- Execute arbitrary transactions via signature verification
+- Add/remove owners through multisig consensus
+- Replay protection using nonces
+- EIP-1271 signature validation support
+- Gas-optimized design
 
-- Multi-network support (Core Mainnet, Testnet2)
-- Configurable Solidity compiler versions and EVM settings
-- Integration with block explorers for contract verification
-- Optimized for performance with Hardhat’s toolbox
-- Structured project setup with support for scripts and testing
+### WalletFactory.sol
+Factory contract for deploying Wallet instances:
+- Create new wallet contracts with specified owners and threshold
+- Emits WalletCreated events for tracking deployments
+- Simple deployment pattern for scalability
 
-> ❗ **Note:** Hardhat Ignition is currently not compatible with Core Blockchain.  
-> Use custom deployment scripts (`scripts/deploy.js`) instead.
+## Deployment
 
-## ⚙️ Setup Instructions
+### Core Testnet2
+- **WalletFactory**: `0x1581eAD89db62985c366eb67728C0474b9908A1C`
+- **Network**: Core Testnet2 (Chain ID: 1114)
+- **RPC**: https://rpc.test2.btcs.network
+- **Explorer**: https://scan.test2.btcs.network/
 
-### 1. Clone the Repository
+## Usage
 
-```bash
-git clone https://github.com/coredao-org/hardhat-tutorial.git
-cd hardhat-tutorial
+### Deploy a New Wallet
+```javascript
+const factory = await ethers.getContractAt("WalletFactory", "0x1581eAD89db62985c366eb67728C0474b9908A1C");
+const tx = await factory.createWallet([owner1, owner2], 2); // 2-of-2 multisig
+const receipt = await tx.wait();
+const walletAddress = receipt.events.find(e => e.event === "WalletCreated").args.wallet;
 ```
 
-### 2. Install Dependencies
+### Execute Transactions
+```javascript
+const wallet = await ethers.getContractAt("Wallet", walletAddress);
+const txHash = await wallet.getTransactionHash(to, value, data, nonce);
+const sig1 = await signer1.signMessage(ethers.utils.arrayify(txHash));
+const sig2 = await signer2.signMessage(ethers.utils.arrayify(txHash));
+await wallet.execute(to, value, data, [sig1, sig2]);
+```
 
+## Development
+
+### Setup
 ```bash
 npm install
+cp .env.example .env
+# Edit .env with your private key and API keys
 ```
 
-### 3. Configure Environment Variables
-
-Create a `.env` file in the project root and add the following variables:
-
-```env
-PRIVATEKEY="your_core_wallet_private_key"
-CORE_MAIN_SCAN_KEY="your_mainnet_explorer_api_key"
-CORE_TEST2_SCAN_KEY="your_testnet2_explorer_api_key"
-```
-
-> ⚠️ **Important:** Never share your private key or commit the `.env` file to version control.
-
----
-
-## 🛠 Hardhat Commands
-
-### Compile Contracts
-
+### Compile
 ```bash
 npx hardhat compile
 ```
 
-### Run Tests
-
+### Test
 ```bash
 npx hardhat test
 ```
 
-### Deploy & Interact (Recommended)
-
-Use a deployment script instead of Hardhat Ignition.
-
+### Deploy
 ```bash
-npx hardhat run scripts/deploy.js --network <network_name>
+npx hardhat run --network core_testnet2 scripts/deploy.js
 ```
 
-Replace `<network_name>` with one of:
+## Security Features
+- Signature verification in ascending address order prevents duplicates
+- Nonce-based replay protection
+- Owner uniqueness validation
+- Reentrancy-safe execution
+- EIP-1271 contract signature standard support
 
-- `core_mainnet`
-- `core_testnet2`
-
-Example:
-
-```bash
-npx hardhat run scripts/deploy.js --network core_testnet2
-```
-
----
-
-## 🧠 Compiler Notes
-
-The project is configured to support multiple Core environments:
-
-- **Testnet2 & Mainnet:**
-  - Solidity version: `0.8.24`
-  - EVM version: `Shanghai`
-
----
-
-## 🌐 Network Configuration
-
-All networks are pre-configured in `hardhat.config.js`:
-
-```js
-networks: {
-  core_mainnet: {
-    url: "https://rpc.coredao.org/",
-    accounts: [process.env.PRIVATEKEY],
-    chainId: 1116,
-  },
-  core_testnet2: {
-    url: "https://rpc.test2.btcs.network",
-    accounts: [process.env.PRIVATEKEY],
-    chainId: 1114,
-  },
-}
-```
-
----
-
-## 🔍 Contract Verification
-
-Supports contract verification via Core block explorers.
-
-Example command:
-
-```bash
-npx hardhat verify --network core_testnet2 <deployed_contract_address> <constructor_args_if_any>
-```
-
-API keys for verification should be placed in your `.env` file.
-
----
-
-## 🚫 Hardhat Ignition Note
-
-> ⚠️ `hardhat-ignition` is **not supported** for Core Blockchain.
-
-To deploy contracts, always use a custom deployment script like:
-
-```js
-// scripts/deploy.js
-```
-
-This ensures compatibility with Core's RPC structure and avoids issues during deployment.
-
-## 📚 Resources
-
-- [Core Docs](https://docs.coredao.org/)
-- [Hardhat Docs](https://hardhat.org/)
-- [CoreScan](https://scan.coredao.org/)
-
-## 🛡 Disclaimer
-
-This project is intended for educational and development use only. Always safeguard your private keys and never expose sensitive credentials in your codebase or version control.
+## License
+MIT
