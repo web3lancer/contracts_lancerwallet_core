@@ -1,30 +1,38 @@
 const hre = require("hardhat");
 
 async function main() {
-  // Define the lock duration (e.g., 1 week from now)
-  const currentTimestamp = Math.floor(Date.now() / 1000); // Current time in seconds
-  const lockDuration = 7 * 24 * 60 * 60; // 1 week
-  const unlockTime = currentTimestamp + lockDuration;
+  const [deployer, owner1, owner2] = await hre.ethers.getSigners();
 
-  console.log(
-    `Deploying Lock contract. Unlock time: ${unlockTime} (${new Date(
-      unlockTime * 1000
-    )})`
-  );
+  console.log("Deploying contracts with account:", deployer.address);
 
-  // Get the contract factory
-  const Lock = await hre.ethers.getContractFactory("Lock");
+  // Get factory (ContractFactory)
+  const Factory = await hre.ethers.getContractFactory("WalletFactory");
 
-  // Deploy the contract with the unlock time as a parameter
-  const lock = await Lock.deploy(unlockTime);
+  // Deploy and keep the Contract instance in `factory`
+  const factory = await Factory.deploy(); // returns Contract instance
+  await factory.waitForDeployment();
+  console.log("WalletFactory deployed to:", factory.target);
 
-  console.log(`Lock deployed to: ${lock.target}`);
+  // Create a wallet: this returns a TransactionResponse
+  const txCreate = await factory.createWallet([deployer.address], 1);
+  const rc = await txCreate.wait(); // wait for receipt
+  const ev = rc.events && rc.events.find((e) => e.event === "WalletCreated");
+  const walletAddress = ev ? ev.args.wallet : null;
+  console.log("createWallet tx:", txCreate.hash);
+  console.log("Wallet created at:", walletAddress);
+
+  // Optionally fund the wallet with 0.1 ETH from deployer
+  if (walletAddress) {
+    const fundValue = hre.ethers.utils.parseEther("0.1");
+    const fundTx = await deployer.sendTransaction({ to: walletAddress, value: fundValue });
+    await fundTx.wait();
+    console.log(`Funded wallet ${walletAddress} with 0.1 ETH, tx: ${fundTx.hash}`);
+  }
 }
 
-// Handle async errors
 main()
   .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
+  .catch((err) => {
+    console.error(err);
     process.exit(1);
   });
